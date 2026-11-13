@@ -53,8 +53,8 @@
     <header class="sticky top-0 z-40 bg-pwDark/95 backdrop-blur border-b border-pwBorder px-4 py-2.5 flex items-center justify-between">
         <div class="flex items-center space-x-2 overflow-hidden">
             <img src="xrq.jpeg" alt="XRQ Logo" class="w-8 h-8 rounded-full border border-pwGreen object-cover shadow shrink-0" onerror="this.src='https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=100&auto=format&fit=crop&q=60'">
-            <!-- APONTA PARA O NOME EXATO DO FICHEIRO QUE ENVIASTE -->
-            <img src="ptxerequinhacabecalho.jpeg" alt="PT Xerequinha" class="h-7 object-contain shrink-0" onerror="this.outerHTML='<span class=\'text-sm font-bold text-white tracking-wide\'>PT Xerequinha</span>'">
+            <!-- BANNER DE TÍTULO COM TAMANHO AJUSTADO -->
+            <img src="ptxerequinhacabecalho.jpeg" alt="PT Xerequinha" class="h-9 w-auto object-contain shrink-0" onerror="this.outerHTML='<span class=\'text-sm font-bold text-white tracking-wide\'>PT Xerequinha</span>'">
             <span class="text-pwGreen text-xs shrink-0">🔒</span>
         </div>
         <div class="flex items-center space-x-4 shrink-0">
@@ -100,7 +100,7 @@
 
     <!-- JAVASCRIPT LOGIC -->
     <script>
-        let state = JSON.parse(localStorage.getItem('xerequinha_pw_v9_state')) || {
+        let state = JSON.parse(localStorage.getItem('xerequinha_pw_v10_state')) || {
             currentTab: 'profile',
             subTab: 'grid',
             posts: [],
@@ -117,7 +117,7 @@
         };
 
         function saveState() {
-            localStorage.setItem('xerequinha_pw_v9_state', JSON.stringify(state));
+            localStorage.setItem('xerequinha_pw_v10_state', JSON.stringify(state));
         }
 
         function switchTab(tab) {
@@ -413,7 +413,7 @@
         }
 
         function toggleLike(id) {
-            const post = state.posts.posts || state.posts.find(p => p.id === id); // safe lookup
+            const post = state.posts.find(p => p.id === id);
             if (post) {
                 post.liked = !post.liked;
                 post.likes = post.liked ? (post.likes || 0) + 1 : Math.max(0, (post.likes || 1) - 1);
