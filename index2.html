@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PT Xerequinha • Perfect World</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        pwDark: '#071610',
+                        pwCard: '#0c261c',
+                        pwBorder: '#144531',
+                        pwGreen: '#10b981',
+                        pwLightGreen: '#34d399',
+                        pwGold: '#fbbf24'
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        /* FUNDO COM A TUA IMAGEM PLUMAS.PNG E CAMADA ESCURA PARA LEITURA */
+        body {
+            background-image: linear-gradient(rgba(3, 12, 8, 0.78), rgba(3, 12, 8, 0.88)), url('plumas.png');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+        .rpg-box {
+            background: rgba(12, 38, 28, 0.9);
+            border: 1px solid #144531;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6);
+        }
+        .rpg-button {
+            background: linear-gradient(to bottom, #0e3b26, #072618);
+            border: 1px solid #10b981;
+        }
+        .rpg-button:hover {
+            background: #10b981;
+            color: #000;
+        }
+    </style>
+</head>
+<body class="text-white font-sans antialiased max-w-md mx-auto min-h-screen flex flex-col justify-between selection:bg-pwGreen selection:text-black shadow-2xl border-x border-pwBorder">
+
+    <!-- TOP HEADER -->
+    <header class="sticky top-0 z-50 bg-pwDark/95 backdrop-blur border-b border-pwBorder px-4 py-2.5 flex items-center justify-between">
+        <div class="flex items-center space-x-2">
+            <img src="xrq.jpeg" alt="XRQ Logo" class="w-8 h-8 rounded-full border border-pwGreen object-cover shadow" onerror="this.src='https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=100&auto=format&fit=crop&q=60'">
+            <span class="text-sm font-bold text-white tracking-wide">PT Xerequinha</span>
+            <span class="text-pwGreen text-xs">🔒</span>
+        </div>
+        <div class="flex items-center space-x-4">
+            <button onclick="openCreateModal()" class="hover:text-pwGreen transition" title="Criar Post">
+                <i data-lucide="plus-square" class="w-6 h-6"></i>
+            </button>
+            <button onclick="toggleMenu()" class="hover:text-pwGreen transition" title="Menu">
+                <i data-lucide="menu" class="w-6 h-6"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- MAIN APP CONTAINER -->
+    <main id="app-content" class="flex-1 pb-24 overflow-y-auto">
+        <!-- Renderizado dinamicamente via JS -->
+    </main>
+
+    <!-- BOTTOM NAVIGATION BAR -->
+    <nav class="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-pwDark/95 backdrop-blur border-t border-pwBorder px-6 py-3 flex items-center justify-between z-50 shadow-2xl">
+        <button onclick="switchTab('profile')" id="nav-profile-home" class="nav-btn text-white transition">
+            <i data-lucide="home" class="w-6 h-6"></i>
+        </button>
+        <button onclick="switchTab('search')" id="nav-search" class="nav-btn text-gray-400 hover:text-white transition">
+            <i data-lucide="search" class="w-6 h-6"></i>
+        </button>
+        <button onclick="openCreateModal()" class="text-gray-400 hover:text-white transition">
+            <i data-lucide="plus-square" class="w-6 h-6"></i>
+        </button>
+        <button onclick="switchTab('agenda')" id="nav-agenda" class="nav-btn text-gray-400 hover:text-white transition">
+            <i data-lucide="calendar" class="w-6 h-6"></i>
+        </button>
+        <button onclick="switchTab('profile')" id="nav-profile-icon" class="nav-btn text-gray-400 hover:text-white transition">
+            <div class="w-6 h-6 rounded-full border-2 border-pwGreen overflow-hidden flex items-center justify-center bg-pwCard">
+                <img src="xrq.jpeg" alt="Mini Logo" class="w-full h-full object-cover">
+            </div>
+        </button>
+    </nav>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        let state = JSON.parse(localStorage.getItem('xerequinha_pw_plumas_state')) || {
+            currentTab: 'profile',
+            subTab: 'grid',
+            posts: [
+                { id: 1, image: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=500&auto=format&fit=crop&q=60', caption: 'Dropou o Livro Divino na DG 99! GG PT! 🐸🔥' },
+                { id: 2, image: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=500&auto=format&fit=crop&q=60', caption: 'Vitória na TW! Xerequinha domina!' },
+                { id: 3, image: 'https://images.unsplash.com/photo-1511512578047-dfb367046420?w=500&auto=format&fit=crop&q=60', caption: 'Farmando Crepúsculo 3-3 com a tropa.' }
+            ],
+            fichas: [
+                { id: 1, name: 'Clayt', class: 'Sacerdote', level: '105', cultivo: 'God 3', sobra: 'Pena de Fênix x2', precisa: 'Manual Divino' },
+                { id: 2, name: 'Membro 2', class: 'Bárbaro', level: '103', cultivo: 'Evil 3', sobra: 'Pedras Nível 8', precisa: 'Capa Universal' }
+            ],
+            agenda: [
+                { id: 1, dg: 'Crepúsculo 3-3', horario: 'Hoje, 21:00', vagas: '1/1 Tank, 1/1 Sacer, 3/4 DDs' }
+            ],
+            loot: [
+                { id: 1, item: 'Manual Divino: Inferno', winner: 'Clayt', valor: '50kk' }
+            ]
+        };
+
+        function saveState() {
+            localStorage.setItem('xerequinha_pw_plumas_state', JSON.stringify(state));
+        }
+
+        function switchTab(tab) {
+            state.currentTab = tab;
+            saveState();
+            render();
+        }
+
+        function setSubTab(st) {
+            state.subTab = st;
+            saveState();
+            render();
+        }
+
+        function render() {
+            const content = document.getElementById('app-content');
+            
+            if (state.currentTab === 'profile') {
+                content.innerHTML = `
+                    <div class="px-4 pt-3 pb-2">
+                        <!-- Profile Header -->
+                        <div class="flex items-center justify-between">
+                            <div class="w-20 h-20 rounded-full p-[2px] bg-gradient-to-tr from-pwGold via-pwGreen to-emerald-700 flex items-center justify-center shrink-0 shadow-lg shadow-pwGreen/20">
+                                <div class="w-full h-full bg-pwCard rounded-full overflow-hidden flex items-center justify-center">
+                                    <img src="xrq.jpeg" alt="Logo" class="w-full h-full object-cover">
+                                </div>
+                            </div>
+                            <div class="flex justify-around flex-1 ml-6 text-center">
+                                <div>
+                                    <p class="font-bold text-base text-white">${state.posts.length}</p>
+                                    <p class="text-xs text-gray-400">Posts</p>
+                                </div>
+                                <div class="cursor-pointer" onclick="setSubTab('fichas')">
+                                    <p class="font-bold text-base text-white">${state.fichas.length}</p>
+                                    <p class="text-xs text-gray-400">Membros</p>
+                                </div>
+                                <div class="cursor-pointer" onclick="setSubTab('agenda')">
+                                    <p class="font-bold text-base text-white">${state.agenda.length}</p>
+                                    <p class="text-xs text-gray-400">DGs</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Bio info -->
+                        <div class="mt-3 space-y-1">
+                            <h1 class="font-bold text-sm text-white">PT Xerequinha</h1>
+                            <p class="text-xs text-gray-300">A melhor PT de PW do servidor. Foco em DGs, farm e união da tropa! 🐸⚡</p>
+                            <a href="https://whatsapp.com" target="_blank" class="text-xs text-pwGreen font-medium block hover:underline">💬 Abrir grupo do WhatsApp da PT</a>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="flex space-x-2 mt-4">
+                            <button onclick="editProfileInfo()" class="flex-1 rpg-button text-white font-semibold py-1.5 rounded-lg text-xs transition">Editar perfil</button>
+                            <button onclick="shareProfile()" class="flex-1 rpg-button text-white font-semibold py-1.5 rounded-lg text-xs transition">Partilhar perfil</button>
+                            <button onclick="triggerDiscord()" class="rpg-button px-3 rounded-lg flex items-center justify-center text-white transition" title="Discord">
+                                <i data-lucide="user-plus" class="w-4 h-4 text-pwGreen"></i>
+                            </button>
+                        </div>
+
+                        <!-- Highlights -->
+                        <div class="mt-5 flex space-x-4 overflow-x-auto pb-2 scrollbar-none">
+                            <div class="flex flex-col items-center space-y-1 shrink-0 cursor-pointer" onclick="openCreateModal()">
+                                <div class="w-16 h-16 rounded-full border border-pwBorder flex items-center justify-center bg-pwCard text-white text-xl shadow-inner">
+                                    <i data-lucide="plus" class="w-6 h-6 text-pwGreen"></i>
+                                </div>
+                                <span class="text-[11px] text-gray-300">Novo</span>
+                            </div>
+                            <div class="flex flex-col items-center space-y-1 shrink-0">
+                                <div class="w-16 h-16 rounded-full p-[2px] bg-gradient-to-tr from-pwGold to-pwGreen">
+                                    <div class="w-full h-full bg-pwCard rounded-full flex items-center justify-center text-xs font-bold text-pwGreen">DGs</div>
+                                </div>
+                                <span class="text-[11px] text-gray-300">Crepúsculo</span>
+                            </div>
+                            <div class="flex flex-col items-center space-y-1 shrink-0">
+                                <div class="w-16 h-16 rounded-full p-[2px] bg-gradient-to-tr from-purple-500 to-pwGreen">
+                                    <div class="w-full h-full bg-pwCard rounded-full flex items-center justify-center text-xs font-bold text-purple-300">Loot</div>
+                                </div>
+                                <span class="text-[11px] text-gray-300">Raros</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tabs Navigation -->
+                    <div class="border-t border-pwBorder flex justify-around mt-2 bg-pwCard/90">
+                        <button onclick="setSubTab('grid')" class="flex-1 py-3 border-b-2 ${state.subTab === 'grid' ? 'border-pwGreen text-pwGreen' : 'border-transparent text-gray-500'} flex justify-center transition">
+                            <i data-lucide="layout-grid" class="w-5 h-5"></i>
+                        </button>
+                        <button onclick="setSubTab('agenda')" class="flex-1 py-3 border-b-2 ${state.subTab === 'agenda' ? 'border-pwGreen text-pwGreen' : 'border-transparent text-gray-500'} flex justify-center transition">
+                            <i data-lucide="calendar" class="w-5 h-5"></i>
+                        </button>
+                        <button onclick="setSubTab('fichas')" class="flex-1 py-3 border-b-2 ${state.subTab === 'fichas' ? 'border-pwGreen text-pwGreen' : 'border-transparent text-gray-500'} flex justify-center transition">
+                            <i data-lucide="users" class="w-5 h-5"></i>
+                        </button>
+                        <button onclick="setSubTab('loot')" class="flex-1 py-3 border-b-2 ${state.subTab === 'loot' ? 'border-pwGreen text-pwGreen' : 'border-transparent text-gray-500'} flex justify-center transition">
+                            <i data-lucide="package" class="w-5 h-5"></i>
+                        </button>
+                    </div>
+
+                    <!-- SubTab Content -->
+                    <div class="min-h-[250px] bg-pwDark/90">
+                        ${renderSubTabContent()}
+                    </div>
+                `;
+            } else if (state.currentTab === 'search') {
+                content.innerHTML = `
+                    <div class="p-4 space-y-3">
+                        <div class="relative">
+                            <i data-lucide="search" class="absolute left-3 top-2.5 w-4 h-4 text-pwGreen"></i>
+                            <input type="text" placeholder="Pesquisar membros, itens ou DGs..." class="w-full bg-pwCard border border-pwBorder rounded-xl pl-9 pr-4 py-2 text-xs text-white focus:outline-none focus:border-pwGreen">
+                        </div>
+                        <p class="text-xs text-pwGreen font-semibold pt-2">Sugestões para a PT</p>
+                        <div class="grid grid-cols-3 gap-1">
+                            ${state.posts.map(p => `<div class="aspect-square bg-pwCard overflow-hidden border border-pwBorder"><img src="${p.image}" class="w-full h-full object-cover"></div>`).join('')}
+                        </div>
+                    </div>
+                `;
+            } else if (state.currentTab === 'agenda') {
+                content.innerHTML = `
+                    <div class="p-4 space-y-4">
+                        <div class="flex justify-between items-center">
+                            <h2 class="text-base font-bold text-white">📅 Agenda de DGs</h2>
+                            <button onclick="openNewDgModal()" class="rpg-button text-pwGreen text-xs font-bold px-3 py-1.5 rounded-lg">+ Marcar</button>
+                        </div>
+                        <div class="space-y-3">
+                            ${state.agenda.map(a => `
+                                <div class="rpg-box p-3.5 rounded-xl space-y-2">
+                                    <div class="flex justify-between items-start">
+                                        <h3 class="font-bold text-white text-sm">${a.dg}</h3>
+                                        <span class="text-[10px] bg-pwGreen/20 text-pwGreen px-2 py-0.5 rounded font-semibold">${a.horario}</span>
+                                    </div>
+                                    <p class="text-xs text-gray-400">Vagas: ${a.vagas}</p>
+                                    <button onclick="alert('Presença confirmada no esquadrão! 🐸')" class="w-full rpg-button text-pwGreen font-semibold text-xs py-1.5 rounded-lg mt-1">Confirmar Presença</button>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+
+            lucide.createIcons();
+        }
+
+        function renderSubTabContent() {
+            if (state.subTab === 'grid') {
+                return `
+                    <div class="grid grid-cols-3 gap-0.5 bg-pwBorder">
+                        ${state.posts.map(p => `
+                            <div class="aspect-square bg-pwCard relative group cursor-pointer overflow-hidden">
+                                <img src="${p.image}" class="w-full h-full object-cover">
+                                <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center text-xs font-bold text-pwLightGreen transition">❤️ 🐸</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            } else if (state.subTab === 'agenda') {
+                return `
+                    <div class="p-4 space-y-3">
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs font-bold text-pwGreen">DGs Agendadas</span>
+                            <button onclick="openNewDgModal()" class="text-xs text-pwGreen font-bold hover:underline">+ Adicionar</button>
+                        </div>
+                        ${state.agenda.map(a => `
+                            <div class="rpg-box p-3 rounded-xl flex justify-between items-center">
+                                <div>
+                                    <p class="text-sm font-bold text-white">${a.dg}</p>
+                                    <p class="text-xs text-gray-400">${a.horario} • ${a.vagas}</p>
+                                </div>
+                                <button onclick="alert('Presença confirmada!')" class="rpg-button text-xs font-bold px-3 py-1.5 rounded-lg text-pwGreen">Ir</button>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            } else if (state.subTab === 'fichas') {
+                return `
+                    <div class="p-4 space-y-3">
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs font-bold text-pwGreen">Fichas da PT</span>
+                            <button onclick="addFicha()" class="text-xs text-pwGreen font-bold hover:underline">+ Minha Ficha</button>
+                        </div>
+                        ${state.fichas.map(f => `
+                            <div class="rpg-box p-3 rounded-xl space-y-1">
+                                <div class="flex justify-between">
+                                    <span class="text-sm font-bold text-white">${f.name}</span>
+                                    <span class="text-xs text-pwGreen">${f.class} (${f.level})</span>
+                                </div>
+                                <p class="text-xs text-gray-400"><strong>Sobra:</strong> ${f.sobra} | <strong>Precisa:</strong> ${f.precisa}</p>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            } else if (state.subTab === 'loot') {
+                return `
+                    <div class="p-4 space-y-3">
+                        <span class="text-xs font-bold text-pwGreen">Registo de Loot</span>
+                        <div class="rpg-box rounded-xl overflow-hidden">
+                            <table class="w-full text-left text-xs">
+                                <thead class="bg-pwBorder text-gray-200">
+                                    <tr>
+                                        <th class="p-2.5">Item</th>
+                                        <th class="p-2.5">Quem levou</th>
+                                        <th class="p-2.5">Valor</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-pwBorder">
+                                    ${state.loot.map(l => `
+                                        <tr>
+                                            <td class="p-2.5 font-medium text-white">${l.item}</td>
+                                            <td class="p-2.5 text-gray-300">${l.winner}</td>
+                                            <td class="p-2.5 text-pwGreen font-bold">${l.valor}</td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        function openCreateModal() {
+            const caption = prompt('Escreve a conquista ou drop da PT para o Feed:');
+            if(caption) {
+                state.posts.unshift({
+                    id: Date.now(),
+                    image: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=500&auto=format&fit=crop&q=60',
+                    caption
+                });
+                saveState();
+                render();
+            }
+        }
+
+        function openNewDgModal() {
+            const dg = prompt('Nome da DG (ex: Vale da Lua):');
+            const horario = prompt('Horário (ex: Hoje às 22h):');
+            if(dg && horario) {
+                state.agenda.push({ id: Date.now(), dg, horario, vagas: 'Vagas abertas' });
+                saveState();
+                render();
+            }
+        }
+
+        function addFicha() {
+            const name = prompt('Nome do Personagem:');
+            const cClass = prompt('Classe (ex: Sacerdote, Bárbaro):');
+            const level = prompt('Nível:');
+            if(name && cClass) {
+                state.fichas.push({ id: Date.now(), name, class: cClass, level: level || '100', cultivo: 'God/Evil', sobra: 'Nenhum', precisa: 'Nenhum' });
+                saveState();
+                render();
+            }
+        }
+
+        function editProfileInfo() {
+            alert('Modo de edição do perfil da PT ativado!');
+        }
+
+        function shareProfile() {
+            alert('Link do perfil copiado para o grupo da PT! 🐸');
+        }
+
+        function triggerDiscord() {
+            alert('Alerta enviado para o Discord da PT Xerequinha! ⚡');
+        }
+
+        function toggleMenu() {
+            alert('Menu de opções da PT Xerequinha.');
+        }
+
+        render();
+    </script>
+</body>
+</html>
