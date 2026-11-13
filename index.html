@@ -94,7 +94,7 @@
 
     <!-- JAVASCRIPT LOGIC -->
     <script>
-        let state = JSON.parse(localStorage.getItem('xerequinha_pw_v4_state')) || {
+        let state = JSON.parse(localStorage.getItem('xerequinha_pw_v6_state')) || {
             currentTab: 'profile',
             subTab: 'grid',
             posts: [],
@@ -111,7 +111,7 @@
         };
 
         function saveState() {
-            localStorage.setItem('xerequinha_pw_v4_state', JSON.stringify(state));
+            localStorage.setItem('xerequinha_pw_v6_state', JSON.stringify(state));
         }
 
         function switchTab(tab) {
@@ -162,7 +162,7 @@
                             <a href="https://whatsapp.com" target="_blank" class="text-xs text-pwGreen font-medium block hover:underline">💬 Abrir grupo do WhatsApp da PT</a>
                         </div>
 
-                        <!-- Action Buttons Atualizados -->
+                        <!-- Action Buttons -->
                         <div class="flex space-x-2 mt-4">
                             <button onclick="editProfileInfo()" class="flex-1 rpg-button text-white font-semibold py-1.5 rounded-lg text-xs transition">Editar perfil</button>
                             <button onclick="shareEquipment()" class="flex-1 rpg-button text-white font-semibold py-1.5 rounded-lg text-xs transition">Compartilhar equipamentos</button>
@@ -270,7 +270,11 @@
                         ${state.posts.map(p => `
                             <div class="aspect-square bg-pwCard relative group cursor-pointer overflow-hidden">
                                 <img src="${p.image}" class="w-full h-full object-cover">
-                                <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center text-xs font-bold text-pwLightGreen transition">❤️ 🐸</div>
+                                <!-- Botão de apagar a foto -->
+                                <button onclick="deletePost(${p.id})" class="absolute top-1 right-1 bg-black/70 hover:bg-red-600 text-white rounded-full p-1 opacity-80 group-hover:opacity-100 transition" title="Apagar foto">
+                                    <i data-lucide="trash-2" class="w-3.5 h-3.5 text-red-400 hover:text-white"></i>
+                                </button>
+                                <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center text-[10px] text-center font-bold text-white p-1 transition pointer-events-none">${p.caption}</div>
                             </div>
                         `).join('')}
                     </div>
@@ -340,6 +344,15 @@
             }
         }
 
+        // Função para apagar post do feed
+        function deletePost(id) {
+            if (confirm('Tens a certeza que queres apagar esta foto do feed?')) {
+                state.posts = state.posts.filter(p => p.id !== id);
+                saveState();
+                render();
+            }
+        }
+
         function openCreateModal() {
             const input = document.createElement('input');
             input.type = 'file';
@@ -349,17 +362,45 @@
                 if (file) {
                     const reader = new FileReader();
                     reader.onload = event => {
-                        const imageUrl = event.target.result;
-                        const caption = prompt('Escreve a legenda ou descrição do drop/conquista:');
-                        if (caption !== null) {
-                            state.posts.unshift({
-                                id: Date.now(),
-                                image: imageUrl,
-                                caption: caption || 'Drop da PT! 🐸'
-                            });
-                            saveState();
-                            render();
-                        }
+                        const img = new Image();
+                        img.onload = () => {
+                            const canvas = document.createElement('canvas');
+                            const MAX_WIDTH = 800;
+                            const MAX_HEIGHT = 800;
+                            let width = img.width;
+                            let height = img.height;
+
+                            if (width > height) {
+                                if (width > MAX_WIDTH) {
+                                    height *= MAX_WIDTH / width;
+                                    width = MAX_WIDTH;
+                                }
+                            } else {
+                                if (height > MAX_HEIGHT) {
+                                    width *= MAX_HEIGHT / height;
+                                    height = MAX_HEIGHT;
+                                }
+                            }
+
+                            canvas.width = width;
+                            canvas.height = height;
+                            const ctx = canvas.getContext('2d');
+                            ctx.drawImage(img, 0, 0, width, height);
+
+                            const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.7);
+
+                            const caption = prompt('Escreve a legenda ou descrição do drop/conquista:');
+                            if (caption !== null) {
+                                state.posts.unshift({
+                                    id: Date.now(),
+                                    image: compressedDataUrl,
+                                    caption: caption || 'Drop da PT! 🐸'
+                                });
+                                saveState();
+                                render();
+                            }
+                        };
+                        img.src = event.target.result;
                     };
                     reader.readAsDataURL(file);
                 }
