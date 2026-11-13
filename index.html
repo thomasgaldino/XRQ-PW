@@ -51,12 +51,13 @@
 
     <!-- TOP HEADER -->
     <header class="sticky top-0 z-40 bg-pwDark/95 backdrop-blur border-b border-pwBorder px-4 py-2.5 flex items-center justify-between">
-        <div class="flex items-center space-x-2">
-            <img src="xrq.jpeg" alt="XRQ Logo" class="w-8 h-8 rounded-full border border-pwGreen object-cover shadow" onerror="this.src='https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=100&auto=format&fit=crop&q=60'">
-            <span class="text-sm font-bold text-white tracking-wide">PT Xerequinha</span>
-            <span class="text-pwGreen text-xs">🔒</span>
+        <div class="flex items-center space-x-2 overflow-hidden">
+            <img src="xrq.jpeg" alt="XRQ Logo" class="w-8 h-8 rounded-full border border-pwGreen object-cover shadow shrink-0" onerror="this.src='https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=100&auto=format&fit=crop&q=60'">
+            <!-- APONTA PARA O NOME EXATO DO FICHEIRO QUE ENVIASTE -->
+            <img src="ptxerequinhacabecalho.jpeg" alt="PT Xerequinha" class="h-7 object-contain shrink-0" onerror="this.outerHTML='<span class=\'text-sm font-bold text-white tracking-wide\'>PT Xerequinha</span>'">
+            <span class="text-pwGreen text-xs shrink-0">🔒</span>
         </div>
-        <div class="flex items-center space-x-4">
+        <div class="flex items-center space-x-4 shrink-0">
             <button onclick="openCreateModal()" class="hover:text-pwGreen transition" title="Criar Post">
                 <i data-lucide="plus-square" class="w-6 h-6"></i>
             </button>
@@ -99,7 +100,7 @@
 
     <!-- JAVASCRIPT LOGIC -->
     <script>
-        let state = JSON.parse(localStorage.getItem('xerequinha_pw_v7_state')) || {
+        let state = JSON.parse(localStorage.getItem('xerequinha_pw_v9_state')) || {
             currentTab: 'profile',
             subTab: 'grid',
             posts: [],
@@ -116,7 +117,7 @@
         };
 
         function saveState() {
-            localStorage.setItem('xerequinha_pw_v7_state', JSON.stringify(state));
+            localStorage.setItem('xerequinha_pw_v9_state', JSON.stringify(state));
         }
 
         function switchTab(tab) {
@@ -345,7 +346,6 @@
             }
         }
 
-        // SISTEMA DE HUD / MODAL DO POST (CURTIR, COMENTAR, PARTILHAR)
         function openPostModal(id) {
             const post = state.posts.find(p => p.id === id);
             if (!post) return;
@@ -355,7 +355,6 @@
 
             modal.innerHTML = `
                 <div class="rpg-box rounded-2xl max-w-sm w-full overflow-hidden flex flex-col max-h-[85vh] shadow-2xl border border-pwBorder">
-                    <!-- Cabeçalho do Modal -->
                     <div class="px-4 py-3 bg-pwDark/90 border-b border-pwBorder flex justify-between items-center">
                         <div class="flex items-center space-x-2">
                             <img src="xrq.jpeg" class="w-7 h-7 rounded-full border border-pwGreen object-cover">
@@ -366,12 +365,10 @@
                         </button>
                     </div>
 
-                    <!-- Imagem -->
                     <div class="bg-black flex items-center justify-center max-h-[40vh] overflow-hidden">
                         <img src="${post.image}" class="w-full h-full object-contain">
                     </div>
 
-                    <!-- Barra de Ações (Curtir, Comentar, Partilhar) -->
                     <div class="px-4 py-2.5 border-b border-pwBorder bg-pwCard/50 flex items-center justify-between">
                         <div class="flex items-center space-x-4">
                             <button onclick="toggleLike(${post.id})" class="flex items-center space-x-1 transition hover:scale-110">
@@ -389,13 +386,11 @@
                         </button>
                     </div>
 
-                    <!-- Curtidas e Legenda -->
                     <div class="px-4 py-2 space-y-1">
                         <p class="text-xs font-bold text-white">${post.likes} gostos</p>
                         <p class="text-xs text-gray-200"><strong>PT Xerequinha:</strong> ${post.caption}</p>
                     </div>
 
-                    <!-- Lista de Comentários -->
                     <div class="px-4 py-2 flex-1 overflow-y-auto space-y-2 max-h-32 border-t border-pwBorder/40">
                         ${post.comments && post.comments.length > 0 ? post.comments.map(c => `
                             <div class="text-[11px] bg-pwDark/50 p-1.5 rounded-lg border border-pwBorder/30">
@@ -404,7 +399,6 @@
                         `).join('') : '<p class="text-[11px] text-gray-500 text-center py-1">Sem comentários ainda. Seja o primeiro!</p>'}
                     </div>
 
-                    <!-- Input para Comentar -->
                     <div class="p-3 bg-pwDark/90 border-t border-pwBorder flex items-center space-x-2">
                         <input type="text" id="comment-input-${post.id}" placeholder="Escreve um comentário..." class="flex-1 bg-pwCard border border-pwBorder rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none focus:border-pwGreen" onkeypress="if(event.key === 'Enter') addComment(${post.id})">
                         <button onclick="addComment(${post.id})" class="rpg-button text-pwGreen px-3 py-1.5 rounded-xl text-xs font-bold">Enviar</button>
@@ -419,12 +413,12 @@
         }
 
         function toggleLike(id) {
-            const post = state.posts.find(p => p.id === id);
+            const post = state.posts.posts || state.posts.find(p => p.id === id); // safe lookup
             if (post) {
                 post.liked = !post.liked;
                 post.likes = post.liked ? (post.likes || 0) + 1 : Math.max(0, (post.likes || 1) - 1);
                 saveState();
-                openPostModal(id); // Atualiza o modal instantaneamente
+                openPostModal(id);
             }
         }
 
