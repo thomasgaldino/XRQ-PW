@@ -6,6 +6,8 @@
     <title>PT Xerequinha • Perfect World</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts (Cinzel para um estilo épico/RPG limpo e marcante) -->
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&display=swap" rel="stylesheet">
     <script>
         tailwind.config = {
             theme: {
@@ -17,6 +19,9 @@
                         pwGreen: '#10b981',
                         pwLightGreen: '#34d399',
                         pwGold: '#fbbf24'
+                    },
+                    fontFamily: {
+                        rpg: ['Cinzel', 'serif']
                     }
                 }
             }
@@ -45,17 +50,24 @@
             background: #10b981;
             color: #000;
         }
+        .title-gradient {
+            font-family: 'Cinzel', serif;
+            font-weight: 900;
+            background: linear-gradient(135deg, #ffffff 30%, #34d399 70%, #10b981 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 2px 10px rgba(16, 185, 129, 0.3);
+        }
     </style>
 </head>
 <body class="text-white font-sans antialiased max-w-md mx-auto min-h-screen flex flex-col justify-between selection:bg-pwGreen selection:text-black shadow-2xl border-x border-pwBorder">
 
     <!-- TOP HEADER -->
-    <header class="sticky top-0 z-40 bg-pwDark/95 backdrop-blur border-b border-pwBorder px-4 py-2.5 flex items-center justify-between">
-        <div class="flex items-center space-x-2 overflow-hidden">
-            <img src="xrq.jpeg" alt="XRQ Logo" class="w-8 h-8 rounded-full border border-pwGreen object-cover shadow shrink-0" onerror="this.src='https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=100&auto=format&fit=crop&q=60'">
-            <!-- APONTA EXATAMENTE PARA O NOME DO FICHEIRO NO GITHUB -->
-            <img src="ptxerequinhacabecalho.jpeg" alt="PT Xerequinha" class="h-9 w-auto object-contain shrink-0" onerror="this.outerHTML='<span class=\'text-sm font-bold text-white tracking-wide\'>PT Xerequinha</span>'">
-            <span class="text-pwGreen text-xs shrink-0">🔒</span>
+    <header class="sticky top-0 z-40 bg-pwDark/95 backdrop-blur border-b border-pwBorder px-4 py-3 flex items-center justify-between">
+        <div class="flex items-center space-x-2.5 overflow-hidden">
+            <img src="xrq.jpeg" alt="XRQ Logo" class="w-9 h-9 rounded-full border-2 border-pwGreen object-cover shadow-md shrink-0" onerror="this.src='https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=100&auto=format&fit=crop&q=60'">
+            <!-- TÍTULO MELHORADO: MAIOR, SEM CADEADO E COM FONTE ESTILIZADA -->
+            <span class="text-base tracking-wider title-gradient truncate">PT Xerequinha</span>
         </div>
         <div class="flex items-center space-x-4 shrink-0">
             <button onclick="openCreateModal()" class="hover:text-pwGreen transition" title="Criar Post">
@@ -100,7 +112,7 @@
 
     <!-- JAVASCRIPT LOGIC -->
     <script>
-        let state = JSON.parse(localStorage.getItem('xerequinha_pw_v12_state')) || {
+        let state = JSON.parse(localStorage.getItem('xerequinha_pw_v13_state')) || {
             currentTab: 'profile',
             subTab: 'grid',
             posts: [],
@@ -117,7 +129,7 @@
         };
 
         function saveState() {
-            localStorage.setItem('xerequinha_pw_v12_state', JSON.stringify(state));
+            localStorage.setItem('xerequinha_pw_v13_state', JSON.stringify(state));
         }
 
         function switchTab(tab) {
