@@ -53,10 +53,8 @@
         .title-gradient {
             font-family: 'Cinzel', serif;
             font-weight: 900;
-            background: linear-gradient(135deg, #ffffff 30%, #34d399 70%, #10b981 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-shadow: 0 2px 10px rgba(16, 185, 129, 0.3);
+            color: #ffffff;
+            text-shadow: 0 0 10px rgba(52, 211, 153, 0.8), 0 0 20px rgba(16, 185, 129, 0.5);
         }
     </style>
 </head>
@@ -66,7 +64,7 @@
     <header class="sticky top-0 z-40 bg-pwDark/95 backdrop-blur border-b border-pwBorder px-4 py-3 flex items-center justify-between">
         <div class="flex items-center space-x-2.5 overflow-hidden">
             <img src="xrq.jpeg" alt="XRQ Logo" class="w-9 h-9 rounded-full border-2 border-pwGreen object-cover shadow-md shrink-0" onerror="this.src='https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=100&auto=format&fit=crop&q=60'">
-            <!-- TÍTULO MELHORADO: MAIOR, SEM CADEADO E COM FONTE ESTILIZADA -->
+            <!-- TÍTULO CORRIGIDO: BRILHANTE E SEM SOMBRAS ESCURAS -->
             <span class="text-base tracking-wider title-gradient truncate">PT Xerequinha</span>
         </div>
         <div class="flex items-center space-x-4 shrink-0">
@@ -112,7 +110,7 @@
 
     <!-- JAVASCRIPT LOGIC -->
     <script>
-        let state = JSON.parse(localStorage.getItem('xerequinha_pw_v13_state')) || {
+        let state = JSON.parse(localStorage.getItem('xerequinha_pw_v14_state')) || {
             currentTab: 'profile',
             subTab: 'grid',
             posts: [],
@@ -129,7 +127,7 @@
         };
 
         function saveState() {
-            localStorage.setItem('xerequinha_pw_v13_state', JSON.stringify(state));
+            localStorage.setItem('xerequinha_pw_v14_state', JSON.stringify(state));
         }
 
         function switchTab(tab) {
