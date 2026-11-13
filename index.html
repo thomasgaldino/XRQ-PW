@@ -25,9 +25,9 @@
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        /* FUNDO COM A TUA IMAGEM PLUMAS.PNG E CAMADA ESCURA PARA LEITURA */
+        /* FUNDO COM A TUA IMAGEM PLUMAS.PNG */
         body {
-            background-image: linear-gradient(rgba(3, 12, 8, 0.78), rgba(3, 12, 8, 0.88)), url('plumas.png');
+            background-image: linear-gradient(rgba(3, 12, 8, 0.85), rgba(3, 12, 8, 0.95)), url('plumas.png');
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
@@ -94,17 +94,13 @@
 
     <!-- JAVASCRIPT LOGIC -->
     <script>
-        let state = JSON.parse(localStorage.getItem('xerequinha_pw_plumas_state')) || {
+        let state = JSON.parse(localStorage.getItem('xerequinha_pw_v4_state')) || {
             currentTab: 'profile',
             subTab: 'grid',
-            posts: [
-                { id: 1, image: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=500&auto=format&fit=crop&q=60', caption: 'Dropou o Livro Divino na DG 99! GG PT! 🐸🔥' },
-                { id: 2, image: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=500&auto=format&fit=crop&q=60', caption: 'Vitória na TW! Xerequinha domina!' },
-                { id: 3, image: 'https://images.unsplash.com/photo-1511512578047-dfb367046420?w=500&auto=format&fit=crop&q=60', caption: 'Farmando Crepúsculo 3-3 com a tropa.' }
-            ],
+            posts: [],
             fichas: [
                 { id: 1, name: 'Clayt', class: 'Sacerdote', level: '105', cultivo: 'God 3', sobra: 'Pena de Fênix x2', precisa: 'Manual Divino' },
-                { id: 2, name: 'Membro 2', class: 'Bárbaro', level: '103', cultivo: 'Evil 3', sobra: 'Pedras Nível 8', precisa: 'Capa Universal' }
+                { id: 2, name: 'Doxcinho', class: 'Membro PT', level: '100', cultivo: 'God/Evil', sobra: 'Nenhum', precisa: 'Nenhum' }
             ],
             agenda: [
                 { id: 1, dg: 'Crepúsculo 3-3', horario: 'Hoje, 21:00', vagas: '1/1 Tank, 1/1 Sacer, 3/4 DDs' }
@@ -115,7 +111,7 @@
         };
 
         function saveState() {
-            localStorage.setItem('xerequinha_pw_plumas_state', JSON.stringify(state));
+            localStorage.setItem('xerequinha_pw_v4_state', JSON.stringify(state));
         }
 
         function switchTab(tab) {
@@ -166,11 +162,11 @@
                             <a href="https://whatsapp.com" target="_blank" class="text-xs text-pwGreen font-medium block hover:underline">💬 Abrir grupo do WhatsApp da PT</a>
                         </div>
 
-                        <!-- Action Buttons -->
+                        <!-- Action Buttons Atualizados -->
                         <div class="flex space-x-2 mt-4">
                             <button onclick="editProfileInfo()" class="flex-1 rpg-button text-white font-semibold py-1.5 rounded-lg text-xs transition">Editar perfil</button>
-                            <button onclick="shareProfile()" class="flex-1 rpg-button text-white font-semibold py-1.5 rounded-lg text-xs transition">Partilhar perfil</button>
-                            <button onclick="triggerDiscord()" class="rpg-button px-3 rounded-lg flex items-center justify-center text-white transition" title="Discord">
+                            <button onclick="shareEquipment()" class="flex-1 rpg-button text-white font-semibold py-1.5 rounded-lg text-xs transition">Compartilhar equipamentos</button>
+                            <button onclick="addFicha()" class="rpg-button px-3 rounded-lg flex items-center justify-center text-white transition" title="Adicionar Membro">
                                 <i data-lucide="user-plus" class="w-4 h-4 text-pwGreen"></i>
                             </button>
                         </div>
@@ -181,7 +177,7 @@
                                 <div class="w-16 h-16 rounded-full border border-pwBorder flex items-center justify-center bg-pwCard text-white text-xl shadow-inner">
                                     <i data-lucide="plus" class="w-6 h-6 text-pwGreen"></i>
                                 </div>
-                                <span class="text-[11px] text-gray-300">Novo</span>
+                                <span class="text-[11px] text-gray-300">Novo Post</span>
                             </div>
                             <div class="flex flex-col items-center space-y-1 shrink-0">
                                 <div class="w-16 h-16 rounded-full p-[2px] bg-gradient-to-tr from-pwGold to-pwGreen">
@@ -228,7 +224,7 @@
                         </div>
                         <p class="text-xs text-pwGreen font-semibold pt-2">Sugestões para a PT</p>
                         <div class="grid grid-cols-3 gap-1">
-                            ${state.posts.map(p => `<div class="aspect-square bg-pwCard overflow-hidden border border-pwBorder"><img src="${p.image}" class="w-full h-full object-cover"></div>`).join('')}
+                            ${state.posts.length > 0 ? state.posts.map(p => `<div class="aspect-square bg-pwCard overflow-hidden border border-pwBorder"><img src="${p.image}" class="w-full h-full object-cover"></div>`).join('') : '<p class="text-xs text-gray-400 col-span-3 text-center py-4">Sem posts ainda.</p>'}
                         </div>
                     </div>
                 `;
@@ -260,6 +256,15 @@
 
         function renderSubTabContent() {
             if (state.subTab === 'grid') {
+                if (state.posts.length === 0) {
+                    return `
+                        <div class="p-10 text-center space-y-3">
+                            <i data-lucide="image-plus" class="w-10 h-10 text-pwGreen mx-auto opacity-60"></i>
+                            <p class="text-xs text-gray-300 font-medium">Ainda não há nenhuma publicação no feed.</p>
+                            <button onclick="openCreateModal()" class="rpg-button text-pwGreen text-xs font-bold px-4 py-2 rounded-xl">Adicionar Primeira Foto</button>
+                        </div>
+                    `;
+                }
                 return `
                     <div class="grid grid-cols-3 gap-0.5 bg-pwBorder">
                         ${state.posts.map(p => `
@@ -336,16 +341,30 @@
         }
 
         function openCreateModal() {
-            const caption = prompt('Escreve a conquista ou drop da PT para o Feed:');
-            if(caption) {
-                state.posts.unshift({
-                    id: Date.now(),
-                    image: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=500&auto=format&fit=crop&q=60',
-                    caption
-                });
-                saveState();
-                render();
-            }
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'image/*';
+            input.onchange = e => {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = event => {
+                        const imageUrl = event.target.result;
+                        const caption = prompt('Escreve a legenda ou descrição do drop/conquista:');
+                        if (caption !== null) {
+                            state.posts.unshift({
+                                id: Date.now(),
+                                image: imageUrl,
+                                caption: caption || 'Drop da PT! 🐸'
+                            });
+                            saveState();
+                            render();
+                        }
+                    };
+                    reader.readAsDataURL(file);
+                }
+            };
+            input.click();
         }
 
         function openNewDgModal() {
@@ -373,8 +392,8 @@
             alert('Modo de edição do perfil da PT ativado!');
         }
 
-        function shareProfile() {
-            alert('Link do perfil copiado para o grupo da PT! 🐸');
+        function shareEquipment() {
+            alert('Lista de equipamentos e itens da PT copiada para partilhar no grupo! 🛡️⚔️');
         }
 
         function triggerDiscord() {
