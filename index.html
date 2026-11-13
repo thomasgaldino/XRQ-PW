@@ -50,7 +50,7 @@
 <body class="text-white font-sans antialiased max-w-md mx-auto min-h-screen flex flex-col justify-between selection:bg-pwGreen selection:text-black shadow-2xl border-x border-pwBorder">
 
     <!-- TOP HEADER -->
-    <header class="sticky top-0 z-50 bg-pwDark/95 backdrop-blur border-b border-pwBorder px-4 py-2.5 flex items-center justify-between">
+    <header class="sticky top-0 z-40 bg-pwDark/95 backdrop-blur border-b border-pwBorder px-4 py-2.5 flex items-center justify-between">
         <div class="flex items-center space-x-2">
             <img src="xrq.jpeg" alt="XRQ Logo" class="w-8 h-8 rounded-full border border-pwGreen object-cover shadow" onerror="this.src='https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=100&auto=format&fit=crop&q=60'">
             <span class="text-sm font-bold text-white tracking-wide">PT Xerequinha</span>
@@ -67,12 +67,17 @@
     </header>
 
     <!-- MAIN APP CONTAINER -->
-    <main id="app-content" class="flex-1 pb-24 overflow-y-auto">
+    <main id="app-content" class="flex-1 pb-24 overflow-y-auto relative">
         <!-- Renderizado dinamicamente via JS -->
     </main>
 
+    <!-- MODAL / HUD DE INTERAÇÃO DO POST -->
+    <div id="post-modal" class="fixed inset-0 bg-black/80 z-50 hidden flex items-center justify-center p-3 backdrop-blur-sm">
+        <!-- Conteúdo gerado via JS -->
+    </div>
+
     <!-- BOTTOM NAVIGATION BAR -->
-    <nav class="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-pwDark/95 backdrop-blur border-t border-pwBorder px-6 py-3 flex items-center justify-between z-50 shadow-2xl">
+    <nav class="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-pwDark/95 backdrop-blur border-t border-pwBorder px-6 py-3 flex items-center justify-between z-40 shadow-2xl">
         <button onclick="switchTab('profile')" id="nav-profile-home" class="nav-btn text-white transition">
             <i data-lucide="home" class="w-6 h-6"></i>
         </button>
@@ -94,7 +99,7 @@
 
     <!-- JAVASCRIPT LOGIC -->
     <script>
-        let state = JSON.parse(localStorage.getItem('xerequinha_pw_v6_state')) || {
+        let state = JSON.parse(localStorage.getItem('xerequinha_pw_v7_state')) || {
             currentTab: 'profile',
             subTab: 'grid',
             posts: [],
@@ -111,7 +116,7 @@
         };
 
         function saveState() {
-            localStorage.setItem('xerequinha_pw_v6_state', JSON.stringify(state));
+            localStorage.setItem('xerequinha_pw_v7_state', JSON.stringify(state));
         }
 
         function switchTab(tab) {
@@ -224,7 +229,7 @@
                         </div>
                         <p class="text-xs text-pwGreen font-semibold pt-2">Sugestões para a PT</p>
                         <div class="grid grid-cols-3 gap-1">
-                            ${state.posts.length > 0 ? state.posts.map(p => `<div class="aspect-square bg-pwCard overflow-hidden border border-pwBorder"><img src="${p.image}" class="w-full h-full object-cover"></div>`).join('') : '<p class="text-xs text-gray-400 col-span-3 text-center py-4">Sem posts ainda.</p>'}
+                            ${state.posts.length > 0 ? state.posts.map(p => `<div class="aspect-square bg-pwCard overflow-hidden border border-pwBorder cursor-pointer" onclick="openPostModal(${p.id})"><img src="${p.image}" class="w-full h-full object-cover"></div>`).join('') : '<p class="text-xs text-gray-400 col-span-3 text-center py-4">Sem posts ainda.</p>'}
                         </div>
                     </div>
                 `;
@@ -268,12 +273,8 @@
                 return `
                     <div class="grid grid-cols-3 gap-0.5 bg-pwBorder">
                         ${state.posts.map(p => `
-                            <div class="aspect-square bg-pwCard relative group cursor-pointer overflow-hidden">
+                            <div class="aspect-square bg-pwCard relative group cursor-pointer overflow-hidden" onclick="openPostModal(${p.id})">
                                 <img src="${p.image}" class="w-full h-full object-cover">
-                                <!-- Botão de apagar a foto -->
-                                <button onclick="deletePost(${p.id})" class="absolute top-1 right-1 bg-black/70 hover:bg-red-600 text-white rounded-full p-1 opacity-80 group-hover:opacity-100 transition" title="Apagar foto">
-                                    <i data-lucide="trash-2" class="w-3.5 h-3.5 text-red-400 hover:text-white"></i>
-                                </button>
                                 <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center text-[10px] text-center font-bold text-white p-1 transition pointer-events-none">${p.caption}</div>
                             </div>
                         `).join('')}
@@ -344,11 +345,121 @@
             }
         }
 
-        // Função para apagar post do feed
+        // SISTEMA DE HUD / MODAL DO POST (CURTIR, COMENTAR, PARTILHAR)
+        function openPostModal(id) {
+            const post = state.posts.find(p => p.id === id);
+            if (!post) return;
+
+            const modal = document.getElementById('post-modal');
+            modal.classList.remove('hidden');
+
+            modal.innerHTML = `
+                <div class="rpg-box rounded-2xl max-w-sm w-full overflow-hidden flex flex-col max-h-[85vh] shadow-2xl border border-pwBorder">
+                    <!-- Cabeçalho do Modal -->
+                    <div class="px-4 py-3 bg-pwDark/90 border-b border-pwBorder flex justify-between items-center">
+                        <div class="flex items-center space-x-2">
+                            <img src="xrq.jpeg" class="w-7 h-7 rounded-full border border-pwGreen object-cover">
+                            <span class="text-xs font-bold text-white">PT Xerequinha</span>
+                        </div>
+                        <button onclick="closePostModal()" class="text-gray-400 hover:text-white">
+                            <i data-lucide="x" class="w-5 h-5"></i>
+                        </button>
+                    </div>
+
+                    <!-- Imagem -->
+                    <div class="bg-black flex items-center justify-center max-h-[40vh] overflow-hidden">
+                        <img src="${post.image}" class="w-full h-full object-contain">
+                    </div>
+
+                    <!-- Barra de Ações (Curtir, Comentar, Partilhar) -->
+                    <div class="px-4 py-2.5 border-b border-pwBorder bg-pwCard/50 flex items-center justify-between">
+                        <div class="flex items-center space-x-4">
+                            <button onclick="toggleLike(${post.id})" class="flex items-center space-x-1 transition hover:scale-110">
+                                <i data-lucide="heart" class="w-6 h-6 ${post.liked ? 'text-red-500 fill-red-500' : 'text-white'}"></i>
+                            </button>
+                            <button onclick="document.getElementById('comment-input-${post.id}').focus()" class="flex items-center space-x-1 text-white hover:text-pwGreen transition">
+                                <i data-lucide="message-circle" class="w-6 h-6"></i>
+                            </button>
+                            <button onclick="sharePost(${post.id})" class="flex items-center space-x-1 text-white hover:text-pwGreen transition" title="Partilhar">
+                                <i data-lucide="share-2" class="w-6 h-6"></i>
+                            </button>
+                        </div>
+                        <button onclick="deletePost(${post.id})" class="text-gray-400 hover:text-red-400 transition" title="Apagar foto">
+                            <i data-lucide="trash-2" class="w-5 h-5"></i>
+                        </button>
+                    </div>
+
+                    <!-- Curtidas e Legenda -->
+                    <div class="px-4 py-2 space-y-1">
+                        <p class="text-xs font-bold text-white">${post.likes} gostos</p>
+                        <p class="text-xs text-gray-200"><strong>PT Xerequinha:</strong> ${post.caption}</p>
+                    </div>
+
+                    <!-- Lista de Comentários -->
+                    <div class="px-4 py-2 flex-1 overflow-y-auto space-y-2 max-h-32 border-t border-pwBorder/40">
+                        ${post.comments && post.comments.length > 0 ? post.comments.map(c => `
+                            <div class="text-[11px] bg-pwDark/50 p-1.5 rounded-lg border border-pwBorder/30">
+                                <span class="font-bold text-pwGreen">${c.author}:</span> <span class="text-gray-300">${c.text}</span>
+                            </div>
+                        `).join('') : '<p class="text-[11px] text-gray-500 text-center py-1">Sem comentários ainda. Seja o primeiro!</p>'}
+                    </div>
+
+                    <!-- Input para Comentar -->
+                    <div class="p-3 bg-pwDark/90 border-t border-pwBorder flex items-center space-x-2">
+                        <input type="text" id="comment-input-${post.id}" placeholder="Escreve um comentário..." class="flex-1 bg-pwCard border border-pwBorder rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none focus:border-pwGreen" onkeypress="if(event.key === 'Enter') addComment(${post.id})">
+                        <button onclick="addComment(${post.id})" class="rpg-button text-pwGreen px-3 py-1.5 rounded-xl text-xs font-bold">Enviar</button>
+                    </div>
+                </div>
+            `;
+            lucide.createIcons();
+        }
+
+        function closePostModal() {
+            document.getElementById('post-modal').classList.add('hidden');
+        }
+
+        function toggleLike(id) {
+            const post = state.posts.find(p => p.id === id);
+            if (post) {
+                post.liked = !post.liked;
+                post.likes = post.liked ? (post.likes || 0) + 1 : Math.max(0, (post.likes || 1) - 1);
+                saveState();
+                openPostModal(id); // Atualiza o modal instantaneamente
+            }
+        }
+
+        function addComment(id) {
+            const input = document.getElementById(`comment-input-${id}`);
+            const text = input.value.trim();
+            if (text) {
+                const post = state.posts.find(p => p.id === id);
+                if (post) {
+                    if (!post.comments) post.comments = [];
+                    const author = prompt('Qual o teu nome/personagem para o comentário?', 'Clayt') || 'Membro PT';
+                    post.comments.push({ author, text });
+                    saveState();
+                    openPostModal(id);
+                }
+            }
+        }
+
+        function sharePost(id) {
+            if (navigator.share) {
+                navigator.share({
+                    title: 'PT Xerequinha • Perfect World',
+                    text: 'Olha este drop incrível da nossa PT!',
+                    url: window.location.href,
+                }).catch(() => {});
+            } else {
+                alert('Link da publicação copiado para partilhar no grupo! 🐸');
+            }
+        }
+
         function deletePost(id) {
             if (confirm('Tens a certeza que queres apagar esta foto do feed?')) {
                 state.posts = state.posts.filter(p => p.id !== id);
                 saveState();
+                closePostModal();
                 render();
             }
         }
@@ -394,7 +505,10 @@
                                 state.posts.unshift({
                                     id: Date.now(),
                                     image: compressedDataUrl,
-                                    caption: caption || 'Drop da PT! 🐸'
+                                    caption: caption || 'Drop da PT! 🐸',
+                                    likes: 0,
+                                    liked: false,
+                                    comments: []
                                 });
                                 saveState();
                                 render();
